@@ -18,7 +18,7 @@ builder.WebHost.ConfigureKestrel(options =>
 // Load configuration from appsettings.json, environment variables, and user secrets
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables()
     .AddUserSecrets<Program>(); // For local dev secret storage
 
