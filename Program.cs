@@ -30,7 +30,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontendLocalhost", policy =>
     {
-        policy.WithOrigins("http://localhost:8080", "https://thankful-island-0a228fb0f.2.azurestaticapps.net/") // AngularJS frontend
+        policy.WithOrigins("http://localhost:8080", "https://thankful-island-0bc34d10f.2.azurestaticapps.net/") // AngularJS frontend
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
