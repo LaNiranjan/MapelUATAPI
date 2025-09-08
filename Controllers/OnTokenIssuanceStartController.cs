@@ -6,6 +6,8 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace MapelRestAPI.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class OnTokenIssuanceStartController : ControllerBase
     {
         private readonly UserAuthHandler _handler;
@@ -17,7 +19,7 @@ namespace MapelRestAPI.Controllers
             _handler = handler;
         }
 
-        [HttpPost(Name = "OnTokenIssuanceStart")]
+        [HttpPost("OnTokenIssuanceStart")]
         public TokenIssuanceStartResponse PostAsync([FromBody] TokenIssuanceStartRequest requestPayload)
         {
             // Track the page view 
@@ -31,7 +33,7 @@ namespace MapelRestAPI.Controllers
             //}
 
             // Read the correlation ID from the Microsoft Entra ID  request    
-            string correlationId = requestPayload.data.authenticationContext.correlationId; ;
+            string correlationId = requestPayload.data.authenticationContext.correlationId; 
 
             // Claims to return to Microsoft Entra ID
             TokenIssuanceStartResponse r = new TokenIssuanceStartResponse();
