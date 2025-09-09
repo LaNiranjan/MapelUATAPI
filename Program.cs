@@ -7,13 +7,13 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 // add this for support https
-//builder.WebHost.ConfigureKestrel(options =>
-//{
-//    options.ListenLocalhost(5004, listenOptions =>
-//    {
-//        listenOptions.UseHttps(); // Uses dev cert by default
-//    });
-//});
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenLocalhost(5004, listenOptions =>
+    {
+        listenOptions.UseHttps(); // Uses dev cert by default
+    });
+});
 
 // Load configuration from appsettings.json, environment variables, and user secrets
 builder.Configuration
@@ -30,7 +30,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:8080", "https://thankful-island-0bc34d10f.2.azurestaticapps.net") // AngularJS frontend
+        policy.WithOrigins("http://localhost:8080", "https://thankful-island-0a228fb0f.2.azurestaticapps.net") // AngularJS frontend
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
