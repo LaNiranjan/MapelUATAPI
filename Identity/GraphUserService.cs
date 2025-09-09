@@ -89,28 +89,34 @@ public class GraphUserService : IUserService
         return results;
     }
 
-    public async Task<string> InviteExternalUserAsync(string email)
-    {
-        var client = GetClient();
-        try
-        {
-            var invitation = new Invitation
-            {
-                InvitedUserEmailAddress = email,
-                InviteRedirectUrl = _redirectUrl,
-                SendInvitationMessage = true,
-                InvitedUserDisplayName = email.Split('@')[0] // Optional
-            };
+  public async Task<string> InviteExternalUserAsync(string email)
+  {
+      var client = GetClient();
+      try
+      {
+          Console.WriteLine($"Using _tenantId: {_tenantId}");
+          Console.WriteLine($"Using _clientId: {_clientId}");
+          Console.WriteLine($"Using _clientSecret: {_clientSecret}");
+          Console.WriteLine($"Using invite Email: {email}");
+          Console.WriteLine($"Using invite redirect URL: {_redirectUrl}");
+          var invitation = new Invitation
+          {
+              InvitedUserEmailAddress = email,
+              InviteRedirectUrl = _redirectUrl,
+              SendInvitationMessage = true,
+              InvitedUserDisplayName = email.Split('@')[0] // Optional
+          };
 
-            var result = await client.Invitations.PostAsync(invitation);
+          var result = await client.Invitations.PostAsync(invitation);
 
-            return $"Invitation sent successfully to: {result?.InvitedUserEmailAddress}";
-        }
-        catch (Exception ex)
-        {
-            return $"Error sending invitation: {ex.Message}";
-        }
-    }
+          return $"Invitation sent successfully to: {result?.InvitedUserEmailAddress}";
+      }
+      catch (Exception ex)
+      {
+          Console.WriteLine($"Using Exception: {ex.Message} {ex.InnerException}");
+          return $"Error sending invitation: {ex.Message}";
+      }
+  }
 
     public async Task<string> GetUserDetailsAsync(string email)
     {
