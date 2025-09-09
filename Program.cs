@@ -7,13 +7,13 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 // add this for support https
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenLocalhost(5004, listenOptions =>
-    {
-        listenOptions.UseHttps(); // Uses dev cert by default
-    });
-});
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    options.ListenLocalhost(5004, listenOptions =>
+//    {
+//        listenOptions.UseHttps(); // Uses dev cert by default
+//    });
+//});
 
 // Load configuration from appsettings.json, environment variables, and user secrets
 builder.Configuration
@@ -28,7 +28,7 @@ builder.Services.Configure<AzureAdSettings>(builder.Configuration.GetSection("Az
 // Enable CORS for frontend
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontendLocalhost", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins("http://localhost:8080", "https://thankful-island-0bc34d10f.2.azurestaticapps.net/") // AngularJS frontend
               .AllowAnyHeader()
@@ -79,7 +79,7 @@ app.UseHttpsRedirection();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseCors("AllowFrontendLocalhost");
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
