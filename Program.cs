@@ -6,50 +6,40 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// add this for support https
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenLocalhost(5004, listenOptions =>
-    {
-        listenOptions.UseHttps(); // Uses dev cert by default
-    });
-});
-
-// Load configuration from appsettings.json, environment variables, and user secrets
+// Load configuration
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables()
-    .AddUserSecrets<Program>(); // For local dev secret storage
+    .AddUserSecrets<Program>();
 
-// Bind AzureAd configuration section to a strongly typed class
+// Bind AzureAd
 builder.Services.Configure<AzureAdSettings>(builder.Configuration.GetSection("AzureAd"));
 
-// Enable CORS for frontend
+// CORS - hardcoded for your Azure Static Web App
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontendLocalhost", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:8080", "https://thankful-island-0bc34d10f.2.azurestaticapps.net/") // AngularJS frontend
+        policy.WithOrigins("https://thankful-island-0a228fb0f.2.azurestaticapps.net")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
 
-// Extract auth settings
 var azureAdSection = builder.Configuration.GetSection("AzureAd");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add Clean Architecture dependencies
+// Clean Architecture services
 builder.Services.AddInfrastructure();
 builder.Services.AddScoped<UserCreationHandler>();
 builder.Services.AddScoped<UserInvitaionHandler>();
 builder.Services.AddScoped<UserAuthHandler>();
 
-// Configure JWT authentication
+// JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -61,7 +51,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidAudiences = new[]
             {
-                $"{azureAdSection["ClientId"]}",
+                azureAdSection["ClientId"]!,
                 $"api://{azureAdSection["ClientId"]}"
             },
             ValidateLifetime = true,
@@ -75,11 +65,7 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-// Configure middleware
-app.UseSwagger();
-app.UseSwaggerUI();
-
-app.UseCors("AllowFrontendLocalhost");
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
