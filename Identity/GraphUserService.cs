@@ -9,20 +9,22 @@ namespace MapelRestAPI.Identity;
 
 public class GraphUserService : IUserService
 {
+    private readonly ILogger<GraphUserService> _logger;
     private readonly string _clientId;
     private readonly string _clientSecret;
     private readonly string _tenantId;
     private readonly string _roletId;
     private readonly string _redirectUrl;
 
-    public GraphUserService(IConfiguration config)
+    public GraphUserService(IConfiguration config, ILogger<GraphUserService> logger)
     {
         var azureAd = config.GetSection("AzureAd");
         _clientId = azureAd["ClientId"]!;
         _clientSecret = azureAd["ClientSecret"]!;
         _tenantId = azureAd["TenantId"]!;
         _roletId = azureAd["RoleId"]!;
-        _redirectUrl = azureAd["RedirectUrl"]!; 
+        _redirectUrl = azureAd["RedirectUrl"]!;
+        _logger = logger;
     }
 
     private GraphServiceClient GetClient()
@@ -89,34 +91,36 @@ public class GraphUserService : IUserService
         return results;
     }
 
-  public async Task<string> InviteExternalUserAsync(string email)
-  {
-      var client = GetClient();
-      try
-      {
-          Console.WriteLine($"Using _tenantId: {_tenantId}");
-          Console.WriteLine($"Using _clientId: {_clientId}");
-          Console.WriteLine($"Using _clientSecret: {_clientSecret}");
-          Console.WriteLine($"Using invite Email: {email}");
-          Console.WriteLine($"Using invite redirect URL: {_redirectUrl}");
-          var invitation = new Invitation
-          {
-              InvitedUserEmailAddress = email,
-              InviteRedirectUrl = _redirectUrl,
-              SendInvitationMessage = true,
-              InvitedUserDisplayName = email.Split('@')[0] // Optional
-          };
+    public async Task<string> InviteExternalUserAsync(string email)
+    {
+        _logger.LogInformation("Starting invitation for {Email}", email);
+        var client = GetClient();
+        try
+        {
+            _logger.LogInformation($"Using _tenantId: {_tenantId}");
+            _logger.LogInformation($"Using _clientId: {_clientId}");
+            _logger.LogInformation($"Using _clientSecret: {_clientSecret}");
+            _logger.LogInformation($"Using invite Email: {email}");
+            _logger.LogInformation($"Using invite redirect URL: {_redirectUrl}");
 
-          var result = await client.Invitations.PostAsync(invitation);
+            var invitation = new Invitation
+            {
+                InvitedUserEmailAddress = email,
+                InviteRedirectUrl = _redirectUrl,
+                SendInvitationMessage = true,
+                InvitedUserDisplayName = email.Split('@')[0] // Optional
+            };
 
-          return $"Invitation sent successfully to: {result?.InvitedUserEmailAddress}";
-      }
-      catch (Exception ex)
-      {
-          Console.WriteLine($"Using Exception: {ex.Message} {ex.InnerException}");
-          return $"Error sending invitation: {ex.Message}";
-      }
-  }
+            var result = await client.Invitations.PostAsync(invitation);
+
+            return $"Invitation sent successfully to: {result?.InvitedUserEmailAddress}";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation($"Using Exception: {ex.Message} {ex.InnerException}");
+            return $"Error sending invitation: {ex.Message}";
+        }
+    }
 
     public async Task<string> GetUserDetailsAsync(string email)
     {
